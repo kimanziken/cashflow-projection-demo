@@ -1,101 +1,345 @@
-import Image from "next/image";
+'use client';
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { format } from 'date-fns';
+import {
+  Credit,
+  CreditsRecord,
+  Debit,
+  EnhancedCredit,
+  EnhancedDebit,
+  EnhancedReconciliation,
+  Entry,
+  Reconciliation,
+  RunningBalanceEntry,
+} from './types';
+import AddCredit from './ledger/add-credit';
+import { useEffect, useState } from 'react';
+import TransporterViewHeader from './ledger/header';
+import { Card, CardContent } from '@/components/ui/card';
+import AddDebit from './ledger/add-debit';
+import { findClosestReconciliation, sortEntries } from './ledger/utils';
+import { cn } from '@/lib/utils';
+
+import { app, database } from './firebase/firebaseConfig';
+import { collection, getDocs, getFirestore } from 'firebase/firestore';
+import { toast } from 'sonner';
+import { get, ref } from 'firebase/database';
+import {
+  deleteCredit,
+  deleteDebit,
+  deleteReconciliation,
+  fetchCredits,
+  fetchDebits,
+  fetchReconciliations,
+} from './ledger/actions';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { DotsHorizontalIcon } from '@radix-ui/react-icons';
+
+import {
+  ConfirmationDialog,
+  useConfirmation,
+} from '@/components/ui/use-confirmation';
+import AddReconciliation from './ledger/add-reconciliation';
+
+const db = getFirestore(app);
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [credits, setCredits] = useState<EnhancedCredit[]>([]);
+  const [debits, setDebits] = useState<EnhancedDebit[]>([]);
+  const [reconciliations, setReconciliations] = useState<
+    EnhancedReconciliation[]
+  >([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  const [selectedCredit, setSelectedCredit] = useState<
+    EnhancedCredit | undefined
+  >();
+  const [selectedDebit, setSelectedDebit] = useState<
+    EnhancedDebit | undefined
+  >();
+  const [selectedReconciliation, setSelectedReconciliation] = useState<
+    EnhancedReconciliation | undefined
+  >();
+  const [openAddCredit, setOpenAddCredit] = useState(false);
+  const [openAddDebit, setOpenAddDebit] = useState(false);
+  const [openReconciliation, setOpenReconciliation] = useState(false);
+
+  const [sortedEntries, setSortedEntries] = useState<Entry[]>([]);
+  const [runningBalanceEntries, setRunningBalanceEntries] = useState<
+    RunningBalanceEntry[]
+  >([]);
+
+  const { confirm, dialogProps } = useConfirmation();
+
+  useEffect(() => {
+    fetchCredits(database).then((fetchedCredits) => {
+      if (fetchedCredits) {
+        const parsedCredits: EnhancedCredit[] = Object.entries(
+          fetchedCredits
+        ).map(([key, record]) => {
+          return { ...record, id: key, entry_type: 'credit' };
+        });
+        setCredits(parsedCredits);
+      } else {
+        setCredits([]);
+      }
+    });
+    fetchDebits(database).then((fetchedDebits) => {
+      if (fetchedDebits) {
+        const parsedDebits: EnhancedDebit[] = Object.entries(fetchedDebits).map(
+          ([key, record]) => {
+            return { ...record, id: key, entry_type: 'debit' };
+          }
+        );
+        setDebits(parsedDebits);
+      } else {
+        setDebits([]);
+      }
+    });
+    fetchReconciliations(database).then((fetchedReconciliations) => {
+      if (fetchedReconciliations) {
+        const parsedReconciliations: EnhancedReconciliation[] = Object.entries(
+          fetchedReconciliations
+        ).map(([key, record]) => {
+          return { ...record, id: key, entry_type: 'reconciliation' };
+        });
+        setReconciliations(parsedReconciliations);
+      } else {
+        setReconciliations([]);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (credits && debits && reconciliations) {
+      const rawSortedEntries = sortEntries([
+        ...credits,
+        ...debits,
+        ...reconciliations,
+      ]);
+      setSortedEntries(rawSortedEntries);
+    }
+  }, [credits, debits, reconciliations]);
+
+  useEffect(() => {
+    if (!reconciliations) {
+      setRunningBalanceEntries([]);
+      return;
+    }
+
+    const closestReconciliation = findClosestReconciliation(reconciliations);
+    let reconciliationSlicedEntries: Entry[] = [];
+
+    if (closestReconciliation) {
+      const closestDate = closestReconciliation.date;
+      const index = sortedEntries.findIndex(
+        (entry) =>
+          entry.date === closestDate && entry.entry_type === 'reconciliation'
+      );
+      if (index !== -1) {
+        reconciliationSlicedEntries = sortedEntries.slice(index);
+      }
+    }
+
+    let _runningBalanceEntries: RunningBalanceEntry[] = [];
+    if (reconciliationSlicedEntries.length > 0 && closestReconciliation) {
+      _runningBalanceEntries.push({
+        ...closestReconciliation,
+        runningBalance: closestReconciliation.currentAmount,
+      });
+      let runningBalance = closestReconciliation.currentAmount;
+      for (const entry of reconciliationSlicedEntries.slice(1)) {
+        if (entry.entry_type === 'debit') {
+          runningBalance -= entry.amount;
+          _runningBalanceEntries.push({ ...entry, runningBalance });
+        } else if (entry.entry_type === 'credit') {
+          runningBalance += entry.amount;
+          _runningBalanceEntries.push({ ...entry, runningBalance });
+        }
+      }
+      setRunningBalanceEntries(_runningBalanceEntries);
+    } else {
+      setRunningBalanceEntries([]);
+    }
+  }, [sortedEntries]);
+
+  return (
+    <>
+      <AddCredit
+        open={openAddCredit}
+        setOpen={setOpenAddCredit}
+        credit={selectedCredit}
+        credits={credits}
+        setCredits={setCredits}
+      />
+      <AddDebit
+        open={openAddDebit}
+        setOpen={setOpenAddDebit}
+        debit={selectedDebit}
+        debits={debits}
+        setDebits={setDebits}
+      />
+      <AddReconciliation
+        open={openReconciliation}
+        setOpen={setOpenReconciliation}
+        reconciliation={selectedReconciliation}
+        reconciliations={reconciliations}
+        setReconciliations={setReconciliations}
+      />
+      <TransporterViewHeader
+        debits={debits}
+        setDebits={setDebits}
+        credits={credits}
+        setCredits={setCredits}
+        reconciliations={reconciliations}
+        setReconciliations={setReconciliations}
+      />
+      <ConfirmationDialog {...dialogProps} />
+      <div className="mx-auto max-w-7xl px-5 pb-12 pt-6 md:px-0">
+        <Card>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Credit</TableHead>
+                  <TableHead>Debit</TableHead>
+                  <TableHead>Balance</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <>
+                  {runningBalanceEntries.map((entry, index) => (
+                    <TableRow key={entry.id}>
+                      <TableCell>
+                        {format(new Date(entry.date), 'yyyy-MM-dd')}
+                      </TableCell>
+                      <TableCell
+                        className={cn(
+                          entry.entry_type === 'credit' &&
+                            entry.type === 'EXPECTED_EOD' &&
+                            'bg-yellow-200'
+                        )}
+                        onClick={() => {
+                          if (entry.entry_type === 'credit') {
+                            setSelectedCredit(entry);
+                            setOpenAddCredit(true);
+                          }
+                        }}
+                      >
+                        {entry.entry_type === 'credit'
+                          ? `${entry.amount} - ${entry.type}`
+                          : '-'}
+                      </TableCell>
+                      <TableCell
+                        onClick={() => {
+                          if (entry.entry_type === 'debit') {
+                            setSelectedDebit(entry);
+                            setOpenAddDebit(true);
+                          }
+                        }}
+                      >
+                        {entry.entry_type === 'debit'
+                          ? `${entry.amount} - ${entry.narration}`
+                          : '-'}
+                      </TableCell>
+                      <TableCell
+                        className={cn({
+                          'bg-blue-400': entry.entry_type === 'reconciliation',
+                          'bg-red-200':
+                            entry.entry_type !== 'reconciliation' &&
+                            entry.runningBalance < 5000,
+                          'bg-red-600':
+                            entry.entry_type !== 'reconciliation' &&
+                            entry.runningBalance < 0,
+                        })}
+                        onClick={() => {
+                          if (entry.entry_type === 'reconciliation') {
+                            setSelectedReconciliation(entry);
+                            setOpenReconciliation(true);
+                          }
+                        }}
+                      >
+                        {`${entry.runningBalance}${entry.entry_type === 'reconciliation' ? ' - Reconciliation' : ''}`}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+                              variant="ghost"
+                            >
+                              <DotsHorizontalIcon className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align="end"
+                            className="w-[160px]"
+                          >
+                            <DropdownMenuItem
+                              className="text-base"
+                              onClick={() => {
+                                confirm({
+                                  title: 'Delete Entry?',
+                                  description:
+                                    'Are you sure you want to delete this entry ?',
+                                  onConfirm: () => {
+                                    if (entry.entry_type === 'credit') {
+                                      deleteCredit(
+                                        database,
+                                        entry.id,
+                                        credits,
+                                        setCredits
+                                      );
+                                    } else if (entry.entry_type === 'debit') {
+                                      deleteDebit(
+                                        database,
+                                        entry.id,
+                                        debits,
+                                        setDebits
+                                      );
+                                    } else if (
+                                      entry.entry_type === 'reconciliation'
+                                    ) {
+                                      deleteReconciliation(
+                                        database,
+                                        entry.id,
+                                        reconciliations,
+                                        setReconciliations
+                                      );
+                                    }
+                                  },
+                                });
+                              }}
+                            >
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }
