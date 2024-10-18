@@ -1,8 +1,7 @@
 'use client';
 
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { Credit, EnhancedCredit, Entry } from '../types';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -11,18 +10,15 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
+import { EnhancedCredit, Entry } from '../types';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { Calendar } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { CalendarIcon } from '@radix-ui/react-icons';
-import { Calendar } from '@/components/ui/calendar';
 import {
   Select,
   SelectContent,
@@ -30,13 +26,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { CalendarIcon } from '@radix-ui/react-icons';
+import { format } from 'date-fns';
 import { Dispatch, SetStateAction, useEffect } from 'react';
-import { generateRandomId, sortEntries } from './utils';
+import { z } from 'zod';
+import { generateRandomId } from './utils';
 
 import { push, ref, set } from 'firebase/database';
-import { database } from '../firebase/firebaseConfig';
 import { toast } from 'sonner';
+import { database } from '../firebase/firebaseConfig';
 
 const CreditSchema = z.object({
   date: z.date().refine((date) => !isNaN(date.getTime()), {

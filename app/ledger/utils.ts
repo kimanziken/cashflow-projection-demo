@@ -1,4 +1,4 @@
-import { EnhancedReconciliation, Entry, Reconciliation } from '../types';
+import { EnhancedReconciliation, Entry } from '../types';
 
 export function sortEntries(entries: Entry[]) {
   const _sortedEntries = entries.sort((a, b) => {

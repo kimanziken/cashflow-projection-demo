@@ -1,38 +1,34 @@
 'use client';
 
-import type { LucideIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import {
-  ArrowDownFromLine,
-  ArrowUpFromDot,
-  CheckCircle,
-  ChevronsUpDownIcon,
-  Edit2Icon,
-  LogOut,
-  Sigma,
-  TruckIcon,
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import AddCredit from './add-credit';
-import AddDebit from './add-debit';
+import { cn } from '@/lib/utils';
+import { signOut } from 'firebase/auth';
+import type { LucideIcon } from 'lucide-react';
+import {
+  ArrowDownFromLine,
+  ArrowUpFromDot,
+  ChevronsUpDownIcon,
+  LogOut,
+  Sigma
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Dispatch, SetStateAction, useState } from 'react';
+import { toast } from 'sonner';
+import { auth } from '../firebase/firebaseConfig';
 import {
   EnhancedCredit,
   EnhancedDebit,
-  EnhancedReconciliation,
-  Entry,
+  EnhancedReconciliation
 } from '../types';
+import AddCredit from './add-credit';
+import AddDebit from './add-debit';
 import AddReconciliation from './add-reconciliation';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebase/firebaseConfig';
-import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 
 export interface EnabledActions {
   label: string;

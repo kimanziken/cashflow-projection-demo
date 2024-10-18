@@ -4,14 +4,14 @@
 import { cn } from '@/lib/utils';
 import './globals.css';
 
-import { Outfit } from 'next/font/google';
-import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from './firebase/firebaseConfig';
-import { useEffect } from 'react';
+import { GeistSans } from 'geist/font/sans';
+import { Outfit } from 'next/font/google';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import Loading from '../components/mine/loading';
+import { auth } from './firebase/firebaseConfig';
 
 const outfit = Outfit({
   subsets: ['latin'],

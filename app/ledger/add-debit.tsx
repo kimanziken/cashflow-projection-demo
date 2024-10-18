@@ -1,8 +1,7 @@
 'use client';
 
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { Debit, EnhancedDebit, Entry } from '../types';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -11,24 +10,25 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
+import { EnhancedDebit, Entry } from '../types';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { Calendar } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { CalendarIcon } from '@radix-ui/react-icons';
-import { Calendar } from '@/components/ui/calendar';
-import { Input } from '@/components/ui/input';
-import { Dispatch, SetStateAction, useEffect } from 'react';
-import { generateRandomId, sortEntries } from './utils';
+import { format } from 'date-fns';
 import { push, ref, set } from 'firebase/database';
-import { database } from '../firebase/firebaseConfig';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import { toast } from 'sonner';
+import { z } from 'zod';
+import { database } from '../firebase/firebaseConfig';
+import { generateRandomId } from './utils';
 
 const DebitSchema = z.object({
   date: z.date().refine((date) => !isNaN(date.getTime()), {

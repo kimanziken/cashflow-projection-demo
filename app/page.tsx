@@ -1,5 +1,6 @@
 'use client';
 
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -8,30 +9,31 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
+import AddCredit from './ledger/add-credit';
+import AddDebit from './ledger/add-debit';
+import TransporterViewHeader from './ledger/header';
+import { findClosestReconciliation, sortEntries } from './ledger/utils';
 import {
-  Credit,
-  CreditsRecord,
-  Debit,
   EnhancedCredit,
   EnhancedDebit,
   EnhancedReconciliation,
   Entry,
-  Reconciliation,
-  RunningBalanceEntry,
+  RunningBalanceEntry
 } from './types';
-import AddCredit from './ledger/add-credit';
-import { useEffect, useState } from 'react';
-import TransporterViewHeader from './ledger/header';
-import { Card, CardContent } from '@/components/ui/card';
-import AddDebit from './ledger/add-debit';
-import { findClosestReconciliation, sortEntries } from './ledger/utils';
-import { cn } from '@/lib/utils';
 
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { DotsHorizontalIcon } from '@radix-ui/react-icons';
+import { getFirestore } from 'firebase/firestore';
 import { app, database } from './firebase/firebaseConfig';
-import { collection, getDocs, getFirestore } from 'firebase/firestore';
-import { toast } from 'sonner';
-import { get, ref } from 'firebase/database';
 import {
   deleteCredit,
   deleteDebit,
@@ -40,23 +42,13 @@ import {
   fetchDebits,
   fetchReconciliations,
 } from './ledger/actions';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { DotsHorizontalIcon } from '@radix-ui/react-icons';
 
+import { TableSkeleton } from '@/components/mine/skeleton';
 import {
   ConfirmationDialog,
   useConfirmation,
 } from '@/components/ui/use-confirmation';
 import AddReconciliation from './ledger/add-reconciliation';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from './firebase/firebaseConfig';
-import { TableSkeleton } from '@/components/mine/skeleton';
 
 const db = getFirestore(app);
 
