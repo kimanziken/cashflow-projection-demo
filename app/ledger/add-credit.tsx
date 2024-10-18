@@ -61,6 +61,11 @@ export default function AddCredit({
 }) {
   const form = useForm<z.infer<typeof CreditSchema>>({
     resolver: zodResolver(CreditSchema),
+    defaultValues: {
+      date: credit?.date ? new Date(credit.date) : undefined,
+      type: credit?.type || '',
+      amount: credit?.amount || undefined,
+    },
   });
 
   useEffect(() => {
@@ -194,7 +199,7 @@ export default function AddCredit({
                     <FormLabel>Type</FormLabel>
                     <FormControl>
                       <Select
-                        defaultValue="EXPECTED_EOD"
+                        value={field.value}
                         onValueChange={field.onChange}
                       >
                         <FormControl>
@@ -203,18 +208,12 @@ export default function AddCredit({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem key="EXPECTED_EOD" value="EXPECTED_EOD">
+                          <SelectItem value="EXPECTED_EOD">
                             EXPECTED_EOD
                           </SelectItem>
-                          <SelectItem key="ACTUAL_EOD" value="ACTUAL_EOD">
-                            ACTUAL_EOD
-                          </SelectItem>
-                          <SelectItem key="CAPITAL" value="CAPITAL">
-                            CAPITAL
-                          </SelectItem>
-                          <SelectItem key="PDQ_SALES" value="PDQ_SALES">
-                            PDQ_SALES
-                          </SelectItem>
+                          <SelectItem value="ACTUAL_EOD">ACTUAL_EOD</SelectItem>
+                          <SelectItem value="CAPITAL">CAPITAL</SelectItem>
+                          <SelectItem value="PDQ_SALES">PDQ_SALES</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>

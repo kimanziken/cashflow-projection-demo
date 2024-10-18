@@ -54,10 +54,15 @@ import {
   useConfirmation,
 } from '@/components/ui/use-confirmation';
 import AddReconciliation from './ledger/add-reconciliation';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from './firebase/firebaseConfig';
+import { TableSkeleton } from '@/components/mine/skeleton';
 
 const db = getFirestore(app);
 
 export default function Home() {
+  const [loading, setLoading] = useState(true);
+
   const [credits, setCredits] = useState<EnhancedCredit[]>([]);
   const [debits, setDebits] = useState<EnhancedDebit[]>([]);
   const [reconciliations, setReconciliations] = useState<
@@ -85,6 +90,7 @@ export default function Home() {
   const { confirm, dialogProps } = useConfirmation();
 
   useEffect(() => {
+    setLoading(true);
     fetchCredits(database).then((fetchedCredits) => {
       if (fetchedCredits) {
         const parsedCredits: EnhancedCredit[] = Object.entries(
@@ -126,9 +132,9 @@ export default function Home() {
   useEffect(() => {
     if (credits && debits && reconciliations) {
       const rawSortedEntries = sortEntries([
+        ...reconciliations,
         ...credits,
         ...debits,
-        ...reconciliations,
       ]);
       setSortedEntries(rawSortedEntries);
     }
@@ -171,8 +177,10 @@ export default function Home() {
         }
       }
       setRunningBalanceEntries(_runningBalanceEntries);
+      setLoading(false);
     } else {
       setRunningBalanceEntries([]);
+      setLoading(false);
     }
   }, [sortedEntries]);
 
@@ -209,136 +217,141 @@ export default function Home() {
       />
       <ConfirmationDialog {...dialogProps} />
       <div className="mx-auto max-w-7xl px-5 pb-12 pt-6 md:px-0">
-        <Card>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Credit</TableHead>
-                  <TableHead>Debit</TableHead>
-                  <TableHead>Balance</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <>
-                  {runningBalanceEntries.map((entry, index) => (
-                    <TableRow key={entry.id}>
-                      <TableCell>
-                        {format(new Date(entry.date), 'yyyy-MM-dd')}
-                      </TableCell>
-                      <TableCell
-                        className={cn(
-                          entry.entry_type === 'credit' &&
-                            entry.type === 'EXPECTED_EOD' &&
-                            'bg-yellow-200'
-                        )}
-                        onClick={() => {
-                          if (entry.entry_type === 'credit') {
-                            setSelectedCredit(entry);
-                            setOpenAddCredit(true);
-                          }
-                        }}
-                      >
-                        {entry.entry_type === 'credit'
-                          ? `${entry.amount} - ${entry.type}`
-                          : '-'}
-                      </TableCell>
-                      <TableCell
-                        onClick={() => {
-                          if (entry.entry_type === 'debit') {
-                            setSelectedDebit(entry);
-                            setOpenAddDebit(true);
-                          }
-                        }}
-                      >
-                        {entry.entry_type === 'debit'
-                          ? `${entry.amount} - ${entry.narration}`
-                          : '-'}
-                      </TableCell>
-                      <TableCell
-                        className={cn({
-                          'bg-blue-400': entry.entry_type === 'reconciliation',
-                          'bg-red-200':
-                            entry.entry_type !== 'reconciliation' &&
-                            entry.runningBalance < 5000,
-                          'bg-red-600':
-                            entry.entry_type !== 'reconciliation' &&
-                            entry.runningBalance < 0,
-                        })}
-                        onClick={() => {
-                          if (entry.entry_type === 'reconciliation') {
-                            setSelectedReconciliation(entry);
-                            setOpenReconciliation(true);
-                          }
-                        }}
-                      >
-                        {`${entry.runningBalance}${entry.entry_type === 'reconciliation' ? ' - Reconciliation' : ''}`}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
-                              variant="ghost"
+        {!loading ? (
+          <Card>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Credit</TableHead>
+                    <TableHead>Debit</TableHead>
+                    <TableHead>Balance</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <>
+                    {runningBalanceEntries.map((entry, index) => (
+                      <TableRow key={entry.id}>
+                        <TableCell>
+                          {format(new Date(entry.date), 'yyyy-MM-dd')}
+                        </TableCell>
+                        <TableCell
+                          className={cn(
+                            entry.entry_type === 'credit' &&
+                              entry.type === 'EXPECTED_EOD' &&
+                              'bg-yellow-200'
+                          )}
+                          onClick={() => {
+                            if (entry.entry_type === 'credit') {
+                              setSelectedCredit(entry);
+                              setOpenAddCredit(true);
+                            }
+                          }}
+                        >
+                          {entry.entry_type === 'credit'
+                            ? `${entry.amount} - ${entry.type}`
+                            : '-'}
+                        </TableCell>
+                        <TableCell
+                          onClick={() => {
+                            if (entry.entry_type === 'debit') {
+                              setSelectedDebit(entry);
+                              setOpenAddDebit(true);
+                            }
+                          }}
+                        >
+                          {entry.entry_type === 'debit'
+                            ? `${entry.amount} - ${entry.narration}`
+                            : '-'}
+                        </TableCell>
+                        <TableCell
+                          className={cn({
+                            'bg-blue-400':
+                              entry.entry_type === 'reconciliation',
+                            'bg-red-200':
+                              entry.entry_type !== 'reconciliation' &&
+                              entry.runningBalance < 5000,
+                            'bg-red-600':
+                              entry.entry_type !== 'reconciliation' &&
+                              entry.runningBalance < 0,
+                          })}
+                          onClick={() => {
+                            if (entry.entry_type === 'reconciliation') {
+                              setSelectedReconciliation(entry);
+                              setOpenReconciliation(true);
+                            }
+                          }}
+                        >
+                          {`${entry.runningBalance}${entry.entry_type === 'reconciliation' ? ' - Reconciliation' : ''}`}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+                                variant="ghost"
+                              >
+                                <DotsHorizontalIcon className="h-4 w-4" />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align="end"
+                              className="w-[160px]"
                             >
-                              <DotsHorizontalIcon className="h-4 w-4" />
-                              <span className="sr-only">Open menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="end"
-                            className="w-[160px]"
-                          >
-                            <DropdownMenuItem
-                              className="text-base"
-                              onClick={() => {
-                                confirm({
-                                  title: 'Delete Entry?',
-                                  description:
-                                    'Are you sure you want to delete this entry ?',
-                                  onConfirm: () => {
-                                    if (entry.entry_type === 'credit') {
-                                      deleteCredit(
-                                        database,
-                                        entry.id,
-                                        credits,
-                                        setCredits
-                                      );
-                                    } else if (entry.entry_type === 'debit') {
-                                      deleteDebit(
-                                        database,
-                                        entry.id,
-                                        debits,
-                                        setDebits
-                                      );
-                                    } else if (
-                                      entry.entry_type === 'reconciliation'
-                                    ) {
-                                      deleteReconciliation(
-                                        database,
-                                        entry.id,
-                                        reconciliations,
-                                        setReconciliations
-                                      );
-                                    }
-                                  },
-                                });
-                              }}
-                            >
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </>
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                              <DropdownMenuItem
+                                className="text-base"
+                                onClick={() => {
+                                  confirm({
+                                    title: 'Delete Entry?',
+                                    description:
+                                      'Are you sure you want to delete this entry ?',
+                                    onConfirm: () => {
+                                      if (entry.entry_type === 'credit') {
+                                        deleteCredit(
+                                          database,
+                                          entry.id,
+                                          credits,
+                                          setCredits
+                                        );
+                                      } else if (entry.entry_type === 'debit') {
+                                        deleteDebit(
+                                          database,
+                                          entry.id,
+                                          debits,
+                                          setDebits
+                                        );
+                                      } else if (
+                                        entry.entry_type === 'reconciliation'
+                                      ) {
+                                        deleteReconciliation(
+                                          database,
+                                          entry.id,
+                                          reconciliations,
+                                          setReconciliations
+                                        );
+                                      }
+                                    },
+                                  });
+                                }}
+                              >
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        ) : (
+          <TableSkeleton columns={4} rows={10} />
+        )}
       </div>
     </>
   );

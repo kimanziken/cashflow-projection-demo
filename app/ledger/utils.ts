@@ -17,13 +17,22 @@ export function sortEntries(entries: Entry[]) {
     const aIsReconciliation = a.entry_type === 'reconciliation';
     const bIsReconciliation = b.entry_type === 'reconciliation';
 
-    // Debits come first
+    // Reconciliation comes first
+    if (aIsReconciliation && !bIsReconciliation) {
+      return -1; // a is reconciliation, goes first
+    }
+    if (!aIsReconciliation && bIsReconciliation) {
+      return 1; // b is reconciliation, goes first
+    }
+
+    // Debits come 2nd
     if (aIsDebit && !bIsDebit) {
       return -1; // a is debit, b is not
     }
     if (!aIsDebit && bIsDebit) {
       return 1; // b is debit, a is not
     }
+
     // If both are debits or both are not debits, check for credits
     if (aIsCredit && !bIsCredit) {
       return 1; // a is credit, b is not
@@ -31,6 +40,7 @@ export function sortEntries(entries: Entry[]) {
     if (!aIsCredit && bIsCredit) {
       return -1; // b is credit, a is not
     }
+
     // Handle credits: EXPECTED_EOD and ACTUAL_EOD should be last among credits
     if (aIsCredit && bIsCredit) {
       if (a.type === 'EXPECTED_EOD' || a.type === 'ACTUAL_EOD') {
@@ -40,14 +50,6 @@ export function sortEntries(entries: Entry[]) {
         return -1; // b is EXPECTED_EOD or ACTUAL_EOD, goes last
       }
       return 0; // Both are credits of different types
-    }
-
-    // Finally, reconcile entries come last
-    if (aIsReconciliation && !bIsReconciliation) {
-      return 1; // a is reconciliation, goes last
-    }
-    if (!aIsReconciliation && bIsReconciliation) {
-      return -1; // b is reconciliation, goes last
     }
 
     return 0; // If all are the same type

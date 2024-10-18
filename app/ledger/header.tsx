@@ -8,6 +8,7 @@ import {
   CheckCircle,
   ChevronsUpDownIcon,
   Edit2Icon,
+  LogOut,
   Sigma,
   TruckIcon,
 } from 'lucide-react';
@@ -28,6 +29,10 @@ import {
   Entry,
 } from '../types';
 import AddReconciliation from './add-reconciliation';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase/firebaseConfig';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 export interface EnabledActions {
   label: string;
@@ -52,10 +57,20 @@ export default function TransporterViewHeader({
   reconciliations: EnhancedReconciliation[];
   setReconciliations: Dispatch<SetStateAction<EnhancedReconciliation[]>>;
 }) {
+  const router = useRouter();
   const [openMenu, setOpenMenu] = useState(false);
   const [addCredit, setAddCredit] = useState(false);
   const [addDebit, setAddDebit] = useState(false);
   const [reconcileAcc, setReconcileAcc] = useState(false);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      toast.error('Error signing out');
+    }
+  };
 
   const enabledActions: EnabledActions[] = [
     {
@@ -79,6 +94,15 @@ export default function TransporterViewHeader({
       icon: Sigma,
       action: () => {
         setReconcileAcc(true);
+      },
+      group: 1,
+      enabled: true,
+    },
+    {
+      label: 'Signout',
+      icon: LogOut,
+      action: () => {
+        handleSignOut();
       },
       group: 1,
       enabled: true,
