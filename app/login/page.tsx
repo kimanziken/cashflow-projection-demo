@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -14,17 +14,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { EyeIcon, EyeOff } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { z } from 'zod';
-import { auth } from '../firebase/firebaseConfig';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { EyeIcon, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { auth } from "../firebase/firebaseConfig";
 
 const SignInSchema = z.object({
   password: z.string().min(1),
@@ -45,17 +45,18 @@ export default function Login() {
     setLoading(true);
 
     signInWithEmailAndPassword(auth, email, password)
-      .catch((e) => {
-        toast.error((e as Error).message, {
-          duration: 5000,
-        });
-      })
       .then((val) => {
         if (val) {
-          router.push('/');
-        } else {
-          toast.error('Login failed');
+          toast.success("Login successful", {
+            duration: 5000,
+          });
+          router.push("/");
         }
+      })
+      .catch((e) => {
+        toast.error(`Error logging in: ${(e as Error).message}`, {
+          duration: 5000,
+        });
       })
       .finally(() => {
         setLoading(false);
@@ -109,7 +110,7 @@ export default function Login() {
                           className="h-12"
                           id="password"
                           placeholder="Enter your password"
-                          type={showPassword ? 'text' : 'password'}
+                          type={showPassword ? "text" : "password"}
                           {...field}
                         />
                         <div className="absolute right-2 top-1/2 -translate-y-1/2 transform pt-2">

@@ -1,20 +1,20 @@
 // app/layout.tsx (or root layout file)
-'use client';
+"use client";
 
-import { cn } from '@/lib/utils';
-import './globals.css';
+import { cn } from "@/lib/utils";
+import "./globals.css";
 
-import { GeistMono } from 'geist/font/mono';
-import { GeistSans } from 'geist/font/sans';
-import { Outfit } from 'next/font/google';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import Loading from '../components/mine/loading';
-import { auth } from './firebase/firebaseConfig';
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
+import { Outfit } from "next/font/google";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import Loading from "../components/mine/loading";
+import { auth } from "./firebase/firebaseConfig";
 
 const outfit = Outfit({
-  subsets: ['latin'],
+  subsets: ["latin"],
 });
 
 export default function RootLayout({
@@ -28,7 +28,7 @@ export default function RootLayout({
   // Handling loading state
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [user, loading, router]);
 
@@ -40,7 +40,7 @@ export default function RootLayout({
       </head>
       <body
         className={cn(
-          'font-sans antialiased',
+          "font-sans antialiased",
           outfit.className,
           GeistSans.variable,
           GeistMono.variable
@@ -49,7 +49,7 @@ export default function RootLayout({
         {loading ? (
           <Loading />
         ) : (
-          <div className={cn('bg-[#F1F3F4] dark:bg-muted/30')}>{children}</div> // Render children when not loading
+          <div className={cn("bg-[#F1F3F4] dark:bg-muted/30")}>{children}</div> // Render children when not loading
         )}
       </body>
     </html>

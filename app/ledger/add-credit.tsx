@@ -1,49 +1,49 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
-import { EnhancedCredit, Entry } from '../types';
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { EnhancedCredit, Entry } from "../types";
 
-import { Calendar } from '@/components/ui/calendar';
-import { Input } from '@/components/ui/input';
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { cn } from '@/lib/utils';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { CalendarIcon } from '@radix-ui/react-icons';
-import { format } from 'date-fns';
-import { Dispatch, SetStateAction, useEffect } from 'react';
-import { z } from 'zod';
-import { generateRandomId } from './utils';
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { format } from "date-fns";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { z } from "zod";
+import { generateRandomId } from "./utils";
 
-import { push, ref, set } from 'firebase/database';
-import { toast } from 'sonner';
-import { database } from '../firebase/firebaseConfig';
+import { push, ref, set } from "firebase/database";
+import { toast } from "sonner";
+import { database } from "../firebase/firebaseConfig";
 
 const CreditSchema = z.object({
   date: z.date().refine((date) => !isNaN(date.getTime()), {
-    message: 'Please select a valid date',
+    message: "Please select a valid date",
   }),
-  type: z.string().nonempty('Please select a type'),
-  amount: z.coerce.number().positive('Amount must be greater than 0'),
+  type: z.string().nonempty("Please select a type"),
+  amount: z.coerce.number().positive("Amount must be greater than 0"),
 });
 
 export default function AddCredit({
@@ -63,16 +63,16 @@ export default function AddCredit({
     resolver: zodResolver(CreditSchema),
     defaultValues: {
       date: credit?.date ? new Date(credit.date) : undefined,
-      type: credit?.type || '',
+      type: credit?.type || "",
       amount: credit?.amount || undefined,
     },
   });
 
   useEffect(() => {
     if (credit) {
-      form.setValue('date', new Date(credit.date));
-      form.setValue('type', credit.type);
-      form.setValue('amount', credit.amount);
+      form.setValue("date", new Date(credit.date));
+      form.setValue("type", credit.type);
+      form.setValue("amount", credit.amount);
     } else {
       form.reset();
     }
@@ -81,26 +81,26 @@ export default function AddCredit({
   function onSubmit(formValues: z.infer<typeof CreditSchema>) {
     const addCredit = async () => {
       try {
-        const creditsRef = ref(database, 'credits');
+        const creditsRef = ref(database, "credits");
         const newDataRef = push(creditsRef);
         await set(newDataRef, {
-          date: format(formValues.date, 'yyyy-MM-dd'),
+          date: format(formValues.date, "yyyy-MM-dd"),
           amount: formValues.amount,
           type: formValues.type,
         });
-        toast.success('Saved credit');
+        toast.success("Saved credit");
         const newId = newDataRef.key || generateRandomId();
         const newEntry: Entry = {
           id: generateRandomId(),
-          date: format(formValues.date, 'yyyy-MM-dd'),
-          entry_type: 'credit',
+          date: format(formValues.date, "yyyy-MM-dd"),
+          entry_type: "credit",
           type: formValues.type,
           amount: formValues.amount,
         };
         const updatedCredits = [...credits, newEntry];
         setCredits(updatedCredits);
       } catch (e) {
-        toast.error('Error saving credit');
+        toast.error("Error saving credit");
       } finally {
         setOpen(false);
       }
@@ -110,14 +110,14 @@ export default function AddCredit({
       try {
         const creditRef = ref(database, `credits/${id}`);
         await set(creditRef, {
-          date: format(formValues.date, 'yyyy-MM-dd'),
+          date: format(formValues.date, "yyyy-MM-dd"),
           type: formValues.type,
           amount: formValues.amount,
         });
         const updatedEntry: Entry = {
           id,
-          date: format(formValues.date, 'yyyy-MM-dd'),
-          entry_type: 'credit',
+          date: format(formValues.date, "yyyy-MM-dd"),
+          entry_type: "credit",
           type: formValues.type,
           amount: formValues.amount,
         };
@@ -126,9 +126,9 @@ export default function AddCredit({
           credits.map((entry) => (entry.id === id ? updatedEntry : entry))
         );
 
-        toast.success('Updated credit');
+        toast.success("Updated credit");
       } catch (e) {
-        toast.error('Error updating credit');
+        toast.error("Error updating credit");
       } finally {
         setOpen(false);
       }
@@ -144,7 +144,7 @@ export default function AddCredit({
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent>
-        <DialogTitle>{credit ? 'Edit Credit' : 'Add Credit'}</DialogTitle>
+        <DialogTitle>{credit ? "Edit Credit" : "Add Credit"}</DialogTitle>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div>
@@ -161,13 +161,13 @@ export default function AddCredit({
                             <FormControl>
                               <Button
                                 className={cn(
-                                  'w-full pl-3 text-left font-normal',
-                                  !field.value && 'text-muted-foreground'
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
                                 )}
                                 variant="outline"
                               >
                                 {field.value ? (
-                                  format(new Date(field.value), 'PPP')
+                                  format(new Date(field.value), "PPP")
                                 ) : (
                                   <span>Pick a date</span>
                                 )}
@@ -229,7 +229,7 @@ export default function AddCredit({
                       <Input
                         {...field}
                         placeholder="Enter amount"
-                        value={field.value || ''}
+                        value={field.value || ""}
                       />
                     </FormControl>
                   </FormItem>
@@ -237,7 +237,7 @@ export default function AddCredit({
               />
             </div>
             <div className="float-right ml-auto mr-0 mt-4 flex gap-5">
-              <Button type="submit">{credit ? 'Update' : 'Save'}</Button>
+              <Button type="submit">{credit ? "Update" : "Save"}</Button>
               <Button onClick={() => setOpen(false)} variant="outline">
                 Cancel
               </Button>

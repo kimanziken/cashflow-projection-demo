@@ -1,41 +1,41 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
-import { EnhancedDebit, Entry } from '../types';
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { EnhancedDebit, Entry } from "../types";
 
-import { Calendar } from '@/components/ui/calendar';
-import { Input } from '@/components/ui/input';
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { CalendarIcon } from '@radix-ui/react-icons';
-import { format } from 'date-fns';
-import { push, ref, set } from 'firebase/database';
-import { Dispatch, SetStateAction, useEffect } from 'react';
-import { toast } from 'sonner';
-import { z } from 'zod';
-import { database } from '../firebase/firebaseConfig';
-import { generateRandomId } from './utils';
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { format } from "date-fns";
+import { push, ref, set } from "firebase/database";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
+import { database } from "../firebase/firebaseConfig";
+import { generateRandomId } from "./utils";
 
 const DebitSchema = z.object({
   date: z.date().refine((date) => !isNaN(date.getTime()), {
-    message: 'Please select a valid date',
+    message: "Please select a valid date",
   }),
-  narration: z.string().nonempty('Please enter a narration'),
-  amount: z.coerce.number().positive('Amount must be greater than 0'),
+  narration: z.string().nonempty("Please enter a narration"),
+  amount: z.coerce.number().positive("Amount must be greater than 0"),
 });
 
 export default function AddDebit({
@@ -57,9 +57,9 @@ export default function AddDebit({
 
   useEffect(() => {
     if (debit) {
-      form.setValue('date', new Date(debit.date));
-      form.setValue('narration', debit?.narration);
-      form.setValue('amount', debit.amount);
+      form.setValue("date", new Date(debit.date));
+      form.setValue("narration", debit?.narration);
+      form.setValue("amount", debit.amount);
     } else {
       form.reset();
     }
@@ -68,26 +68,26 @@ export default function AddDebit({
   function onSubmit(formValues: z.infer<typeof DebitSchema>) {
     const addDebit = async () => {
       try {
-        const debitsRef = ref(database, 'debits');
+        const debitsRef = ref(database, "debits");
         const newDataRef = push(debitsRef);
         await set(newDataRef, {
-          date: format(formValues.date, 'yyyy-MM-dd'),
+          date: format(formValues.date, "yyyy-MM-dd"),
           amount: formValues.amount,
           narration: formValues.narration,
         });
-        toast.success('Saved debit');
+        toast.success("Saved debit");
         const newId = newDataRef.key || generateRandomId();
         const newEntry: Entry = {
           id: newId,
-          date: format(formValues.date, 'yyyy-MM-dd'),
-          entry_type: 'debit',
+          date: format(formValues.date, "yyyy-MM-dd"),
+          entry_type: "debit",
           narration: formValues.narration,
           amount: formValues.amount,
         };
         const updatedDebits = [...debits, newEntry];
         setDebits(updatedDebits);
       } catch (e) {
-        toast.error('Error saving debit');
+        toast.error("Error saving debit");
       } finally {
         setOpen(false);
       }
@@ -97,14 +97,14 @@ export default function AddDebit({
       try {
         const debitRef = ref(database, `debits/${id}`);
         await set(debitRef, {
-          date: format(formValues.date, 'yyyy-MM-dd'),
+          date: format(formValues.date, "yyyy-MM-dd"),
           narration: formValues.narration,
           amount: formValues.amount,
         });
         const updatedEntry: Entry = {
           id,
-          date: format(formValues.date, 'yyyy-MM-dd'),
-          entry_type: 'debit',
+          date: format(formValues.date, "yyyy-MM-dd"),
+          entry_type: "debit",
           narration: formValues.narration,
           amount: formValues.amount,
         };
@@ -113,9 +113,9 @@ export default function AddDebit({
           debits.map((entry) => (entry.id === id ? updatedEntry : entry))
         );
 
-        toast.success('Updated debit');
+        toast.success("Updated debit");
       } catch (e) {
-        toast.error('Error updating debit');
+        toast.error("Error updating debit");
       } finally {
         setOpen(false);
       }
@@ -131,7 +131,7 @@ export default function AddDebit({
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent>
-        <DialogTitle>{debit ? 'Edit Debit' : 'Add Debit'}</DialogTitle>
+        <DialogTitle>{debit ? "Edit Debit" : "Add Debit"}</DialogTitle>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div>
@@ -148,13 +148,13 @@ export default function AddDebit({
                             <FormControl>
                               <Button
                                 className={cn(
-                                  'w-full pl-3 text-left font-normal',
-                                  !field.value && 'text-muted-foreground'
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
                                 )}
                                 variant="outline"
                               >
                                 {field.value ? (
-                                  format(new Date(field.value), 'PPP')
+                                  format(new Date(field.value), "PPP")
                                 ) : (
                                   <span>Pick a date</span>
                                 )}
@@ -188,7 +188,7 @@ export default function AddDebit({
                       <Input
                         {...field}
                         placeholder="Enter narration"
-                        value={field.value || ''}
+                        value={field.value || ""}
                       />
                     </FormControl>
                   </FormItem>
@@ -203,7 +203,7 @@ export default function AddDebit({
                       <Input
                         {...field}
                         placeholder="Enter amount"
-                        value={field.value || ''}
+                        value={field.value || ""}
                       />
                     </FormControl>
                   </FormItem>
@@ -211,7 +211,7 @@ export default function AddDebit({
               />
             </div>
             <div className="float-right ml-auto mr-0 mt-4 flex gap-5">
-              <Button type="submit">{debit ? 'Update' : 'Save'}</Button>
+              <Button type="submit">{debit ? "Update" : "Save"}</Button>
               <Button onClick={() => setOpen(false)} variant="outline">
                 Cancel
               </Button>

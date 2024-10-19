@@ -1,34 +1,34 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
-import { signOut } from 'firebase/auth';
-import type { LucideIcon } from 'lucide-react';
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import { signOut } from "firebase/auth";
+import type { LucideIcon } from "lucide-react";
 import {
   ArrowDownFromLine,
   ArrowUpFromDot,
   ChevronsUpDownIcon,
   LogOut,
-  Sigma
-} from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { Dispatch, SetStateAction, useState } from 'react';
-import { toast } from 'sonner';
-import { auth } from '../firebase/firebaseConfig';
+  Sigma,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Dispatch, SetStateAction, useState } from "react";
+import { toast } from "sonner";
+import { auth } from "../firebase/firebaseConfig";
 import {
   EnhancedCredit,
   EnhancedDebit,
-  EnhancedReconciliation
-} from '../types';
-import AddCredit from './add-credit';
-import AddDebit from './add-debit';
-import AddReconciliation from './add-reconciliation';
+  EnhancedReconciliation,
+} from "../types";
+import AddCredit from "./add-credit";
+import AddDebit from "./add-debit";
+import AddReconciliation from "./add-reconciliation";
 
 export interface EnabledActions {
   label: string;
@@ -62,15 +62,15 @@ export default function TransporterViewHeader({
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      router.push('/login');
+      router.push("/login");
     } catch (error) {
-      toast.error('Error signing out');
+      toast.error("Error signing out");
     }
   };
 
   const enabledActions: EnabledActions[] = [
     {
-      label: 'Add Credit',
+      label: "Add Credit",
       icon: ArrowDownFromLine,
       action: () => {
         setAddCredit(true);
@@ -79,14 +79,14 @@ export default function TransporterViewHeader({
       enabled: true,
     },
     {
-      label: 'Add Debit',
+      label: "Add Debit",
       icon: ArrowUpFromDot,
       action: () => setAddDebit(true),
       group: 1,
       enabled: true,
     },
     {
-      label: 'Add Reconciliation',
+      label: "Add Reconciliation",
       icon: Sigma,
       action: () => {
         setReconcileAcc(true);
@@ -95,7 +95,7 @@ export default function TransporterViewHeader({
       enabled: true,
     },
     {
-      label: 'Signout',
+      label: "Signout",
       icon: LogOut,
       action: () => {
         handleSignOut();
@@ -144,7 +144,7 @@ export default function TransporterViewHeader({
               .map((action) => (
                 <DropdownMenuItem
                   className={cn(
-                    'cursor-pointer rounded-none px-4 py-2 text-base'
+                    "cursor-pointer rounded-none px-4 py-2 text-base"
                   )}
                   disabled={!action.enabled}
                   key={action.label}

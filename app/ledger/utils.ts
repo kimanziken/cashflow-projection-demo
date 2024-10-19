@@ -1,4 +1,4 @@
-import { EnhancedReconciliation, Entry } from '../types';
+import { EnhancedReconciliation, Entry } from "../types";
 
 export function sortEntries(entries: Entry[]) {
   const _sortedEntries = entries.sort((a, b) => {
@@ -10,12 +10,12 @@ export function sortEntries(entries: Entry[]) {
     }
 
     // Handle entries for the same date
-    const aIsDebit = a.entry_type === 'debit';
-    const bIsDebit = b.entry_type === 'debit';
-    const aIsCredit = a.entry_type === 'credit';
-    const bIsCredit = b.entry_type === 'credit';
-    const aIsReconciliation = a.entry_type === 'reconciliation';
-    const bIsReconciliation = b.entry_type === 'reconciliation';
+    const aIsDebit = a.entry_type === "debit";
+    const bIsDebit = b.entry_type === "debit";
+    const aIsCredit = a.entry_type === "credit";
+    const bIsCredit = b.entry_type === "credit";
+    const aIsReconciliation = a.entry_type === "reconciliation";
+    const bIsReconciliation = b.entry_type === "reconciliation";
 
     // Reconciliation comes first
     if (aIsReconciliation && !bIsReconciliation) {
@@ -43,10 +43,10 @@ export function sortEntries(entries: Entry[]) {
 
     // Handle credits: EXPECTED_EOD and ACTUAL_EOD should be last among credits
     if (aIsCredit && bIsCredit) {
-      if (a.type === 'EXPECTED_EOD' || a.type === 'ACTUAL_EOD') {
+      if (a.type === "EXPECTED_EOD" || a.type === "ACTUAL_EOD") {
         return 1; // a is EXPECTED_EOD or ACTUAL_EOD, goes last
       }
-      if (b.type === 'EXPECTED_EOD' || b.type === 'ACTUAL_EOD') {
+      if (b.type === "EXPECTED_EOD" || b.type === "ACTUAL_EOD") {
         return -1; // b is EXPECTED_EOD or ACTUAL_EOD, goes last
       }
       return 0; // Both are credits of different types
@@ -73,8 +73,8 @@ export function findClosestReconciliation(
 
 export function generateRandomId(length = 20) {
   const characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
 
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);

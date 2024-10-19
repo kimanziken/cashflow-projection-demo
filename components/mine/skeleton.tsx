@@ -1,6 +1,6 @@
-import { useScreenSize } from '@/app/hooks/screen-size';
-import { Card } from '../ui/card';
-import { Skeleton } from '../ui/skeleton';
+import { useScreenSize } from "@/app/hooks/screen-size";
+import { Card } from "../ui/card";
+import { Skeleton } from "../ui/skeleton";
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table';
+} from "../ui/table";
 
 export function TableSkeleton({
   columns,

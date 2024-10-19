@@ -1,45 +1,42 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
-import {
-  EnhancedReconciliation,
-  Entry
-} from '../types';
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { EnhancedReconciliation, Entry } from "../types";
 
-import { Calendar } from '@/components/ui/calendar';
-import { Input } from '@/components/ui/input';
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { CalendarIcon } from '@radix-ui/react-icons';
-import { format } from 'date-fns';
-import { Dispatch, SetStateAction, useEffect } from 'react';
-import { z } from 'zod';
-import { generateRandomId } from './utils';
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { format } from "date-fns";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { z } from "zod";
+import { generateRandomId } from "./utils";
 
-import { push, ref, set } from 'firebase/database';
-import { toast } from 'sonner';
-import { database } from '../firebase/firebaseConfig';
+import { push, ref, set } from "firebase/database";
+import { toast } from "sonner";
+import { database } from "../firebase/firebaseConfig";
 
 const CreditSchema = z.object({
   date: z.date().refine((date) => !isNaN(date.getTime()), {
-    message: 'Please select a valid date',
+    message: "Please select a valid date",
   }),
-  narration: z.string().nonempty('Please enter narration'),
-  balance: z.coerce.number().positive('Balance must be greater than zero'),
+  narration: z.string().nonempty("Please enter narration"),
+  balance: z.coerce.number().positive("Balance must be greater than zero"),
 });
 
 export default function AddReconciliation({
@@ -61,9 +58,9 @@ export default function AddReconciliation({
 
   useEffect(() => {
     if (reconciliation) {
-      form.setValue('date', new Date(reconciliation.date));
-      form.setValue('balance', reconciliation.currentAmount);
-      form.setValue('narration', reconciliation.narration);
+      form.setValue("date", new Date(reconciliation.date));
+      form.setValue("balance", reconciliation.currentAmount);
+      form.setValue("narration", reconciliation.narration);
     } else {
       form.reset();
     }
@@ -72,26 +69,26 @@ export default function AddReconciliation({
   function onSubmit(formValues: z.infer<typeof CreditSchema>) {
     const addReconciliation = async () => {
       try {
-        const reconciliationRef = ref(database, 'reconciliations');
+        const reconciliationRef = ref(database, "reconciliations");
         const newDataRef = push(reconciliationRef);
         await set(newDataRef, {
-          date: format(formValues.date, 'yyyy-MM-dd'),
+          date: format(formValues.date, "yyyy-MM-dd"),
           narration: formValues.narration,
           currentAmount: formValues.balance,
         });
         const newId = newDataRef.key || generateRandomId();
         const newEntry: Entry = {
           id: newId,
-          date: format(formValues.date, 'yyyy-MM-dd'),
-          entry_type: 'reconciliation',
+          date: format(formValues.date, "yyyy-MM-dd"),
+          entry_type: "reconciliation",
           narration: formValues.narration,
           currentAmount: formValues.balance,
         };
 
         setReconciliations([...reconciliations, newEntry]);
-        toast.success('Saved reconciliation');
+        toast.success("Saved reconciliation");
       } catch (e) {
-        toast.error('Error saving reconciliation');
+        toast.error("Error saving reconciliation");
       } finally {
         setOpen(false);
       }
@@ -101,14 +98,14 @@ export default function AddReconciliation({
       try {
         const reconciliationRef = ref(database, `reconciliations/${id}`);
         await set(reconciliationRef, {
-          date: format(formValues.date, 'yyyy-MM-dd'),
+          date: format(formValues.date, "yyyy-MM-dd"),
           narration: formValues.narration,
           currentAmount: formValues.balance,
         });
         const updatedEntry: Entry = {
           id,
-          date: format(formValues.date, 'yyyy-MM-dd'),
-          entry_type: 'reconciliation',
+          date: format(formValues.date, "yyyy-MM-dd"),
+          entry_type: "reconciliation",
           narration: formValues.narration,
           currentAmount: formValues.balance,
         };
@@ -119,9 +116,9 @@ export default function AddReconciliation({
           )
         );
 
-        toast.success('Updated reconciliation');
+        toast.success("Updated reconciliation");
       } catch (e) {
-        toast.error('Error updating reconciliation');
+        toast.error("Error updating reconciliation");
       } finally {
         setOpen(false);
       }
@@ -138,7 +135,7 @@ export default function AddReconciliation({
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent>
         <DialogTitle>
-          {reconciliation ? 'Edit Reconciliation' : 'Add Reconciliation'}
+          {reconciliation ? "Edit Reconciliation" : "Add Reconciliation"}
         </DialogTitle>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -156,13 +153,13 @@ export default function AddReconciliation({
                             <FormControl>
                               <Button
                                 className={cn(
-                                  'w-full pl-3 text-left font-normal',
-                                  !field.value && 'text-muted-foreground'
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
                                 )}
                                 variant="outline"
                               >
                                 {field.value ? (
-                                  format(new Date(field.value), 'PPP')
+                                  format(new Date(field.value), "PPP")
                                 ) : (
                                   <span>Pick a date</span>
                                 )}
@@ -196,7 +193,7 @@ export default function AddReconciliation({
                       <Input
                         {...field}
                         placeholder="Enter narration"
-                        value={field.value || ''}
+                        value={field.value || ""}
                       />
                     </FormControl>
                   </FormItem>
@@ -211,7 +208,7 @@ export default function AddReconciliation({
                       <Input
                         {...field}
                         placeholder="Enter current balance"
-                        value={field.value || ''}
+                        value={field.value || ""}
                       />
                     </FormControl>
                   </FormItem>
@@ -220,7 +217,7 @@ export default function AddReconciliation({
             </div>
             <div className="float-right ml-auto mr-0 mt-4 flex gap-5">
               <Button type="submit">
-                {reconciliation ? 'Update' : 'Save'}
+                {reconciliation ? "Update" : "Save"}
               </Button>
               <Button onClick={() => setOpen(false)} variant="outline">
                 Cancel

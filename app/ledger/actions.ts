@@ -1,6 +1,6 @@
-import { Database, get, ref, remove } from 'firebase/database';
-import { Dispatch, SetStateAction } from 'react';
-import { toast } from 'sonner';
+import { Database, get, ref, remove } from "firebase/database";
+import { Dispatch, SetStateAction } from "react";
+import { toast } from "sonner";
 import {
   CreditsRecord,
   DebitRecord,
@@ -8,11 +8,11 @@ import {
   EnhancedDebit,
   EnhancedReconciliation,
   ReconciliationRecord,
-} from '../types';
+} from "../types";
 
 export const fetchCredits = async (database: Database) => {
   try {
-    const creditsRef = ref(database, 'credits');
+    const creditsRef = ref(database, "credits");
     const snapshot = await get(creditsRef);
     if (snapshot.exists()) {
       const credits = snapshot.val();
@@ -21,13 +21,13 @@ export const fetchCredits = async (database: Database) => {
       return undefined;
     }
   } catch (error) {
-    toast.error('Error fetching credits');
+    toast.error("Error fetching credits");
     return undefined;
   }
 };
 export const fetchDebits = async (database: Database) => {
   try {
-    const debitsRef = ref(database, 'debits');
+    const debitsRef = ref(database, "debits");
     const snapshot = await get(debitsRef);
     if (snapshot.exists()) {
       const debits = snapshot.val();
@@ -36,13 +36,13 @@ export const fetchDebits = async (database: Database) => {
       return undefined;
     }
   } catch (error) {
-    toast.error('Error fetching debits');
+    toast.error("Error fetching debits");
     return undefined;
   }
 };
 export const fetchReconciliations = async (database: Database) => {
   try {
-    const reconciliationsRef = ref(database, 'reconciliations');
+    const reconciliationsRef = ref(database, "reconciliations");
     const snapshot = await get(reconciliationsRef);
     if (snapshot.exists()) {
       const reconciliations = snapshot.val();
@@ -51,7 +51,7 @@ export const fetchReconciliations = async (database: Database) => {
       return undefined;
     }
   } catch (error) {
-    toast.error('Error fetching reconciliations');
+    toast.error("Error fetching reconciliations");
     return undefined;
   }
 };
@@ -66,9 +66,9 @@ export const deleteCredit = async (
     const creditRef = ref(database, `credits/${id}`);
     await remove(creditRef);
     setCredits(credits.filter((entry) => entry.id !== id));
-    toast.success('Deleted credit');
+    toast.success("Deleted credit");
   } catch (e) {
-    toast.error('Error deleting credit');
+    toast.error("Error deleting credit");
   }
 };
 export const deleteDebit = async (
@@ -81,9 +81,9 @@ export const deleteDebit = async (
     const debitRef = ref(database, `debits/${id}`);
     await remove(debitRef);
     setDebits(debits.filter((entry) => entry.id !== id));
-    toast.success('Deleted debit');
+    toast.success("Deleted debit");
   } catch (e) {
-    toast.error('Error deleting debit');
+    toast.error("Error deleting debit");
   }
 };
 export const deleteReconciliation = async (
@@ -96,8 +96,8 @@ export const deleteReconciliation = async (
     const reconciliationRef = ref(database, `reconciliations/${id}`);
     await remove(reconciliationRef);
     setReconciliations(reconciliations.filter((entry) => entry.id !== id));
-    toast.success('Deleted reconciliation');
+    toast.success("Deleted reconciliation");
   } catch (e) {
-    toast.error('Error deleting reconciliation');
+    toast.error("Error deleting reconciliation");
   }
 };

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -8,32 +8,32 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { useEffect, useState } from 'react';
-import AddCredit from './ledger/add-credit';
-import AddDebit from './ledger/add-debit';
-import TransporterViewHeader from './ledger/header';
-import { findClosestReconciliation, sortEntries } from './ledger/utils';
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { useEffect, useState } from "react";
+import AddCredit from "./ledger/add-credit";
+import AddDebit from "./ledger/add-debit";
+import TransporterViewHeader from "./ledger/header";
+import { findClosestReconciliation, sortEntries } from "./ledger/utils";
 import {
   EnhancedCredit,
   EnhancedDebit,
   EnhancedReconciliation,
   Entry,
-  RunningBalanceEntry
-} from './types';
+  RunningBalanceEntry,
+} from "./types";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { DotsHorizontalIcon } from '@radix-ui/react-icons';
-import { getFirestore } from 'firebase/firestore';
-import { app, database } from './firebase/firebaseConfig';
+} from "@/components/ui/dropdown-menu";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { getFirestore } from "firebase/firestore";
+import { app, database } from "./firebase/firebaseConfig";
 import {
   deleteCredit,
   deleteDebit,
@@ -41,16 +41,14 @@ import {
   fetchCredits,
   fetchDebits,
   fetchReconciliations,
-} from './ledger/actions';
+} from "./ledger/actions";
 
-import { TableSkeleton } from '@/components/mine/skeleton';
+import { TableSkeleton } from "@/components/mine/skeleton";
 import {
   ConfirmationDialog,
   useConfirmation,
-} from '@/components/ui/use-confirmation';
-import AddReconciliation from './ledger/add-reconciliation';
-
-const db = getFirestore(app);
+} from "@/components/ui/use-confirmation";
+import AddReconciliation from "./ledger/add-reconciliation";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -81,7 +79,6 @@ export default function Home() {
 
   const { confirm, dialogProps } = useConfirmation();
 
-  
   useEffect(() => {
     setLoading(true);
     fetchCredits(database).then((fetchedCredits) => {
@@ -89,7 +86,7 @@ export default function Home() {
         const parsedCredits: EnhancedCredit[] = Object.entries(
           fetchedCredits
         ).map(([key, record]) => {
-          return { ...record, id: key, entry_type: 'credit' };
+          return { ...record, id: key, entry_type: "credit" };
         });
         setCredits(parsedCredits);
       } else {
@@ -100,7 +97,7 @@ export default function Home() {
       if (fetchedDebits) {
         const parsedDebits: EnhancedDebit[] = Object.entries(fetchedDebits).map(
           ([key, record]) => {
-            return { ...record, id: key, entry_type: 'debit' };
+            return { ...record, id: key, entry_type: "debit" };
           }
         );
         setDebits(parsedDebits);
@@ -113,7 +110,7 @@ export default function Home() {
         const parsedReconciliations: EnhancedReconciliation[] = Object.entries(
           fetchedReconciliations
         ).map(([key, record]) => {
-          return { ...record, id: key, entry_type: 'reconciliation' };
+          return { ...record, id: key, entry_type: "reconciliation" };
         });
         setReconciliations(parsedReconciliations);
       } else {
@@ -146,7 +143,7 @@ export default function Home() {
       const closestDate = closestReconciliation.date;
       const index = sortedEntries.findIndex(
         (entry) =>
-          entry.date === closestDate && entry.entry_type === 'reconciliation'
+          entry.date === closestDate && entry.entry_type === "reconciliation"
       );
       if (index !== -1) {
         reconciliationSlicedEntries = sortedEntries.slice(index);
@@ -161,10 +158,10 @@ export default function Home() {
       });
       let runningBalance = closestReconciliation.currentAmount;
       for (const entry of reconciliationSlicedEntries.slice(1)) {
-        if (entry.entry_type === 'debit') {
+        if (entry.entry_type === "debit") {
           runningBalance -= entry.amount;
           _runningBalanceEntries.push({ ...entry, runningBalance });
-        } else if (entry.entry_type === 'credit') {
+        } else if (entry.entry_type === "credit") {
           runningBalance += entry.amount;
           _runningBalanceEntries.push({ ...entry, runningBalance });
         }
@@ -225,59 +222,59 @@ export default function Home() {
                 </TableHeader>
                 <TableBody>
                   <>
-                    {runningBalanceEntries.map((entry, index) => (
+                    {runningBalanceEntries.map((entry) => (
                       <TableRow key={entry.id}>
                         <TableCell>
-                          {format(new Date(entry.date), 'yyyy-MM-dd')}
+                          {format(new Date(entry.date), "yyyy-MM-dd")}
                         </TableCell>
                         <TableCell
                           className={cn(
-                            entry.entry_type === 'credit' &&
-                              entry.type === 'EXPECTED_EOD' &&
-                              'bg-yellow-200'
+                            entry.entry_type === "credit" &&
+                              entry.type === "EXPECTED_EOD" &&
+                              "bg-yellow-200"
                           )}
                           onClick={() => {
-                            if (entry.entry_type === 'credit') {
+                            if (entry.entry_type === "credit") {
                               setSelectedCredit(entry);
                               setOpenAddCredit(true);
                             }
                           }}
                         >
-                          {entry.entry_type === 'credit'
+                          {entry.entry_type === "credit"
                             ? `${entry.amount} - ${entry.type}`
-                            : '-'}
+                            : "-"}
                         </TableCell>
                         <TableCell
                           onClick={() => {
-                            if (entry.entry_type === 'debit') {
+                            if (entry.entry_type === "debit") {
                               setSelectedDebit(entry);
                               setOpenAddDebit(true);
                             }
                           }}
                         >
-                          {entry.entry_type === 'debit'
+                          {entry.entry_type === "debit"
                             ? `${entry.amount} - ${entry.narration}`
-                            : '-'}
+                            : "-"}
                         </TableCell>
                         <TableCell
                           className={cn({
-                            'bg-blue-400':
-                              entry.entry_type === 'reconciliation',
-                            'bg-red-200':
-                              entry.entry_type !== 'reconciliation' &&
+                            "bg-blue-400":
+                              entry.entry_type === "reconciliation",
+                            "bg-red-200":
+                              entry.entry_type !== "reconciliation" &&
                               entry.runningBalance < 5000,
-                            'bg-red-600':
-                              entry.entry_type !== 'reconciliation' &&
+                            "bg-red-600":
+                              entry.entry_type !== "reconciliation" &&
                               entry.runningBalance < 0,
                           })}
                           onClick={() => {
-                            if (entry.entry_type === 'reconciliation') {
+                            if (entry.entry_type === "reconciliation") {
                               setSelectedReconciliation(entry);
                               setOpenReconciliation(true);
                             }
                           }}
                         >
-                          {`${entry.runningBalance}${entry.entry_type === 'reconciliation' ? ' - Reconciliation' : ''}`}
+                          {`${entry.runningBalance}${entry.entry_type === "reconciliation" ? " - Reconciliation" : ""}`}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
@@ -298,18 +295,18 @@ export default function Home() {
                                 className="text-base"
                                 onClick={() => {
                                   confirm({
-                                    title: 'Delete Entry?',
+                                    title: "Delete Entry?",
                                     description:
-                                      'Are you sure you want to delete this entry ?',
+                                      "Are you sure you want to delete this entry ?",
                                     onConfirm: () => {
-                                      if (entry.entry_type === 'credit') {
+                                      if (entry.entry_type === "credit") {
                                         deleteCredit(
                                           database,
                                           entry.id,
                                           credits,
                                           setCredits
                                         );
-                                      } else if (entry.entry_type === 'debit') {
+                                      } else if (entry.entry_type === "debit") {
                                         deleteDebit(
                                           database,
                                           entry.id,
@@ -317,7 +314,7 @@ export default function Home() {
                                           setDebits
                                         );
                                       } else if (
-                                        entry.entry_type === 'reconciliation'
+                                        entry.entry_type === "reconciliation"
                                       ) {
                                         deleteReconciliation(
                                           database,

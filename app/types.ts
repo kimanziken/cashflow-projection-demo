@@ -5,7 +5,7 @@ export type Credit = {
 };
 export type EnhancedCredit = Credit & {
   id: string;
-  entry_type: 'credit';
+  entry_type: "credit";
 };
 export type CreditsRecord = {
   [key: string]: Credit;
@@ -17,7 +17,7 @@ export type Debit = {
 };
 export type EnhancedDebit = Debit & {
   id: string;
-  entry_type: 'debit';
+  entry_type: "debit";
 };
 export type DebitRecord = {
   [key: string]: Debit;
@@ -29,7 +29,7 @@ export type Reconciliation = {
 };
 export type EnhancedReconciliation = Reconciliation & {
   id: string;
-  entry_type: 'reconciliation';
+  entry_type: "reconciliation";
 };
 export type ReconciliationRecord = {
   [key: string]: Reconciliation;
