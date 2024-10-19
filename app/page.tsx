@@ -81,42 +81,49 @@ export default function Home() {
 
   useEffect(() => {
     setLoading(true);
-    fetchCredits(database).then((fetchedCredits) => {
-      if (fetchedCredits) {
-        const parsedCredits: EnhancedCredit[] = Object.entries(
-          fetchedCredits
-        ).map(([key, record]) => {
-          return { ...record, id: key, entry_type: "credit" };
-        });
-        setCredits(parsedCredits);
-      } else {
-        setCredits([]);
-      }
-    });
-    fetchDebits(database).then((fetchedDebits) => {
-      if (fetchedDebits) {
-        const parsedDebits: EnhancedDebit[] = Object.entries(fetchedDebits).map(
-          ([key, record]) => {
+    Promise.all([
+      fetchCredits(database).then((fetchedCredits) => {
+        if (fetchedCredits) {
+          const parsedCredits: EnhancedCredit[] = Object.entries(
+            fetchedCredits
+          ).map(([key, record]) => {
+            return { ...record, id: key, entry_type: "credit" };
+          });
+          setCredits(parsedCredits);
+        } else {
+          setCredits([]);
+        }
+      }),
+      fetchDebits(database).then((fetchedDebits) => {
+        if (fetchedDebits) {
+          const parsedDebits: EnhancedDebit[] = Object.entries(
+            fetchedDebits
+          ).map(([key, record]) => {
             return { ...record, id: key, entry_type: "debit" };
-          }
-        );
-        setDebits(parsedDebits);
-      } else {
-        setDebits([]);
-      }
-    });
-    fetchReconciliations(database).then((fetchedReconciliations) => {
-      if (fetchedReconciliations) {
-        const parsedReconciliations: EnhancedReconciliation[] = Object.entries(
-          fetchedReconciliations
-        ).map(([key, record]) => {
-          return { ...record, id: key, entry_type: "reconciliation" };
-        });
-        setReconciliations(parsedReconciliations);
-      } else {
-        setReconciliations([]);
-      }
-    });
+          });
+          setDebits(parsedDebits);
+        } else {
+          setDebits([]);
+        }
+      }),
+      fetchReconciliations(database).then((fetchedReconciliations) => {
+        if (fetchedReconciliations) {
+          const parsedReconciliations: EnhancedReconciliation[] =
+            Object.entries(fetchedReconciliations).map(([key, record]) => {
+              return { ...record, id: key, entry_type: "reconciliation" };
+            });
+          setReconciliations(parsedReconciliations);
+        } else {
+          setReconciliations([]);
+        }
+      }),
+    ])
+      .then(() => {
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -167,10 +174,8 @@ export default function Home() {
         }
       }
       setRunningBalanceEntries(_runningBalanceEntries);
-      setLoading(false);
     } else {
       setRunningBalanceEntries([]);
-      setLoading(false);
     }
   }, [sortedEntries]);
 

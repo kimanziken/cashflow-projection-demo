@@ -1,3 +1,5 @@
+"use client";
+
 import { useScreenSize } from "@/app/hooks/screen-size";
 import { Card } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
