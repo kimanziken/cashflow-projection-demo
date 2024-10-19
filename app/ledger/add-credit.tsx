@@ -144,7 +144,7 @@ export default function AddCredit({
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent>
-        <DialogTitle>{credit ? "Edit Credit" : "Add Credit"}</DialogTitle>
+        <DialogTitle>{credit ? "Edit Money In" : "Add Money In"}</DialogTitle>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div>

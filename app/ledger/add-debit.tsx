@@ -131,7 +131,7 @@ export default function AddDebit({
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogContent>
-        <DialogTitle>{debit ? "Edit Debit" : "Add Debit"}</DialogTitle>
+        <DialogTitle>{debit ? "Edit Money Out" : "Add Money Out"}</DialogTitle>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div>

@@ -70,7 +70,7 @@ export default function TransporterViewHeader({
 
   const enabledActions: EnabledActions[] = [
     {
-      label: "Add Credit",
+      label: "Money In",
       icon: ArrowDownFromLine,
       action: () => {
         setAddCredit(true);
@@ -79,7 +79,7 @@ export default function TransporterViewHeader({
       enabled: true,
     },
     {
-      label: "Add Debit",
+      label: "Money Out",
       icon: ArrowUpFromDot,
       action: () => setAddDebit(true),
       group: 1,
