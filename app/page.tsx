@@ -81,6 +81,7 @@ export default function Home() {
 
   const { confirm, dialogProps } = useConfirmation();
 
+  
   useEffect(() => {
     setLoading(true);
     fetchCredits(database).then((fetchedCredits) => {
