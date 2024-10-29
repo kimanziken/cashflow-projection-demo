@@ -219,6 +219,7 @@ export default function Home() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
+                    <TableHead>Day</TableHead>
                     <TableHead>Credit</TableHead>
                     <TableHead>Debit</TableHead>
                     <TableHead>Balance</TableHead>
@@ -231,6 +232,9 @@ export default function Home() {
                       <TableRow key={entry.id}>
                         <TableCell>
                           {format(new Date(entry.date), "yyyy-MM-dd")}
+                        </TableCell>
+                        <TableCell>
+                          {format(new Date(entry.date), "EEEE")}
                         </TableCell>
                         <TableCell
                           className={cn(
