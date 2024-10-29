@@ -62,13 +62,12 @@ export function findClosestReconciliation(
   reconciliations: EnhancedReconciliation[]
 ): EnhancedReconciliation | undefined {
   const today = new Date();
-  const pastReconciliations = reconciliations.filter(
-    (reconciliation) =>
-      new Date(reconciliation.date).setHours(0, 0, 0, 0) <= today.getTime()
-  );
+  today.setHours(0, 0, 0, 0); // Remove time for comparison purposes
 
-  const closestReconciliation = pastReconciliations.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  const closestReconciliation = reconciliations.sort(
+    (a, b) =>
+      Math.abs(new Date(a.date).getTime() - today.getTime()) -
+      Math.abs(new Date(b.date).getTime() - today.getTime())
   )[0];
 
   return closestReconciliation;
