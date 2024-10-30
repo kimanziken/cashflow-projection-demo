@@ -212,8 +212,10 @@ export default function AddCredit({
                             EXPECTED_EOD
                           </SelectItem>
                           <SelectItem value="ACTUAL_EOD">ACTUAL_EOD</SelectItem>
-                          <SelectItem value="CAPITAL">PICK UP</SelectItem>
-                          <SelectItem value="CAPITAL">TILL TRANSFER</SelectItem>
+                          <SelectItem value="PICPK_UP">PICK UP</SelectItem>
+                          <SelectItem value="TILL_TRANSFER">
+                            TILL TRANSFER
+                          </SelectItem>
                           <SelectItem value="CAPITAL">CAPITAL</SelectItem>
                           <SelectItem value="PDQ_SALES">PDQ_SALES</SelectItem>
                         </SelectContent>
