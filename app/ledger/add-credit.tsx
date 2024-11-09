@@ -91,7 +91,7 @@ export default function AddCredit({
         toast.success("Saved credit");
         const newId = newDataRef.key || generateRandomId();
         const newEntry: Entry = {
-          id: generateRandomId(),
+          id: newId,
           date: format(formValues.date, "yyyy-MM-dd"),
           entry_type: "credit",
           type: formValues.type,

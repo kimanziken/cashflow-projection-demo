@@ -28,7 +28,7 @@ import { Dispatch, SetStateAction, useEffect } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { database } from "../firebase/firebaseConfig";
-import { generateRandomId } from "./utils";
+import { generateRandomId, processDebitsAndCheckForCredits } from "./utils";
 import { Textarea } from "@/components/ui/textarea";
 
 const DebitSchema = z.object({
@@ -46,12 +46,16 @@ export default function AddDebit({
   setOpen,
   debits,
   setDebits,
+  entries,
+  refetch,
 }: {
   debit?: EnhancedDebit;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   debits: EnhancedDebit[];
   setDebits: Dispatch<SetStateAction<EnhancedDebit[]>>;
+  entries: Entry[];
+  refetch: () => void;
 }) {
   const form = useForm<z.infer<typeof DebitSchema>>({
     resolver: zodResolver(DebitSchema),
@@ -89,8 +93,7 @@ export default function AddDebit({
           amount: formValues.amount,
           remarks: formValues.remarks ?? null,
         };
-        const updatedDebits = [...debits, newEntry];
-        setDebits(updatedDebits);
+        await processDebitsAndCheckForCredits([...entries, newEntry], refetch);
       } catch (e) {
         toast.error("Error saving debit");
       } finally {
@@ -116,10 +119,14 @@ export default function AddDebit({
           remarks: formValues.remarks ?? null,
         };
 
-        setDebits(
-          debits.map((entry) => (entry.id === id ? updatedEntry : entry))
-        );
+        // setDebits(
+        //   debits.map((entry) => (entry.id === id ? updatedEntry : entry))
+        // );
 
+        await processDebitsAndCheckForCredits(
+          entries.map((entry) => (entry.id === id ? updatedEntry : entry)),
+          refetch
+        );
         toast.success("Updated debit");
       } catch (e) {
         toast.error("Error updating debit");

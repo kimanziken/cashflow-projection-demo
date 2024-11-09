@@ -38,13 +38,14 @@ export interface EnabledActions {
   enabled: boolean;
 }
 
-export default function TransporterViewHeader({
+export default function LedgerViewHeader({
   debits,
   setDebits,
   credits,
   setCredits,
   reconciliations,
   setReconciliations,
+  refetch,
 }: {
   debits: EnhancedDebit[];
   setDebits: Dispatch<SetStateAction<EnhancedDebit[]>>;
@@ -52,6 +53,7 @@ export default function TransporterViewHeader({
   setCredits: Dispatch<SetStateAction<EnhancedCredit[]>>;
   reconciliations: EnhancedReconciliation[];
   setReconciliations: Dispatch<SetStateAction<EnhancedReconciliation[]>>;
+  refetch: () => void;
 }) {
   const router = useRouter();
   const [openMenu, setOpenMenu] = useState(false);
@@ -118,6 +120,8 @@ export default function TransporterViewHeader({
         setOpen={setAddDebit}
         debits={debits}
         setDebits={setDebits}
+        entries={[...credits, ...debits, ...reconciliations]}
+        refetch={refetch}
       />
       <AddReconciliation
         open={reconcileAcc}

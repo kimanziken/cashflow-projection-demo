@@ -52,6 +52,7 @@ import AddReconciliation from "./ledger/add-reconciliation";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, Trash2 } from "lucide-react";
 import BulkChangeDates from "./ledger/bulk-change-dates";
+import LedgerViewHeader from "./ledger/header";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -204,6 +205,8 @@ export default function Home() {
         debit={selectedDebit}
         debits={debits}
         setDebits={setDebits}
+        entries={[...credits, ...debits, ...reconciliations]}
+        refetch={runFetchEntries}
       />
       <AddReconciliation
         open={openReconciliation}
@@ -212,13 +215,14 @@ export default function Home() {
         reconciliations={reconciliations}
         setReconciliations={setReconciliations}
       />
-      <TransporterViewHeader
+      <LedgerViewHeader
         debits={debits}
         setDebits={setDebits}
         credits={credits}
         setCredits={setCredits}
         reconciliations={reconciliations}
         setReconciliations={setReconciliations}
+        refetch={runFetchEntries}
       />
       <BulkChangeDates
         entries={selectedEntries}
@@ -249,13 +253,13 @@ export default function Home() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-5">Select</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Day</TableHead>
-                      <TableHead>Credit</TableHead>
-                      <TableHead>Debit</TableHead>
-                      <TableHead>Balance</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead className="w-5 font-bold">Select</TableHead>
+                      <TableHead className="font-bold">Date</TableHead>
+                      <TableHead className="font-bold">Day</TableHead>
+                      <TableHead className="font-bold">Credit</TableHead>
+                      <TableHead className="font-bold">Debit</TableHead>
+                      <TableHead className="font-bold">Balance</TableHead>
+                      <TableHead className="font-bold">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -318,7 +322,7 @@ export default function Home() {
                             }}
                           >
                             {entry.entry_type === "credit"
-                              ? `${entry.amount} - ${entry.type}`
+                              ? `${entry.amount.toLocaleString()} - ${entry.type}`
                               : "-"}
                           </TableCell>
                           <TableCell
@@ -334,11 +338,12 @@ export default function Home() {
                             }}
                           >
                             {entry.entry_type === "debit"
-                              ? `${entry.amount} - ${entry.narration}`
+                              ? `${entry.amount.toLocaleString()} - ${entry.narration}`
                               : "-"}
                           </TableCell>
                           <TableCell
                             className={cn(
+                              "font-bold",
                               entry.entry_type === "reconciliation" &&
                                 "hover:cursor-pointer",
                               {
@@ -359,7 +364,7 @@ export default function Home() {
                               }
                             }}
                           >
-                            {`${entry.runningBalance}${entry.entry_type === "reconciliation" ? " - Reconciliation" : ""}`}
+                            {`${entry.runningBalance.toLocaleString()}${entry.entry_type === "reconciliation" ? " - Reconciliation" : ""}`}
                           </TableCell>
                           <TableCell>
                             <DropdownMenu>
