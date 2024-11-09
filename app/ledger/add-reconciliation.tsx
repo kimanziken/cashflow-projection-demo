@@ -219,7 +219,11 @@ export default function AddReconciliation({
               <Button type="submit">
                 {reconciliation ? "Update" : "Save"}
               </Button>
-              <Button onClick={() => setOpen(false)} variant="outline">
+              <Button
+                type="button"
+                onClick={() => setOpen(false)}
+                variant="outline"
+              >
                 Cancel
               </Button>
             </div>

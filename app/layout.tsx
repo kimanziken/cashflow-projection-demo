@@ -12,6 +12,8 @@ import { useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Loading from "../components/mine/loading";
 import { auth } from "./firebase/firebaseConfig";
+import { Toaster } from "sonner";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -22,6 +24,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const queryClient = new QueryClient();
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
 
@@ -49,7 +52,14 @@ export default function RootLayout({
         {loading ? (
           <Loading />
         ) : (
-          <div className={cn("bg-[#F1F3F4] dark:bg-muted/30")}>{children}</div> // Render children when not loading
+          <>
+            <Toaster richColors />
+            <QueryClientProvider client={queryClient}>
+              <div className={cn("bg-[#F1F3F4] dark:bg-muted/30")}>
+                {children}
+              </div>
+            </QueryClientProvider>
+          </>
         )}
       </body>
     </html>

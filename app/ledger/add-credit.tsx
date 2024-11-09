@@ -242,7 +242,11 @@ export default function AddCredit({
             </div>
             <div className="float-right ml-auto mr-0 mt-4 flex gap-5">
               <Button type="submit">{credit ? "Update" : "Save"}</Button>
-              <Button onClick={() => setOpen(false)} variant="outline">
+              <Button
+                type="button"
+                onClick={() => setOpen(false)}
+                variant="outline"
+              >
                 Cancel
               </Button>
             </div>

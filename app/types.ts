@@ -14,6 +14,7 @@ export type Debit = {
   narration: string;
   amount: number;
   date: string;
+  remarks?: string | null;
 };
 export type EnhancedDebit = Debit & {
   id: string;

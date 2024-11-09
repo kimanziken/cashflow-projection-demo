@@ -1,4 +1,4 @@
-import { EnhancedReconciliation, Entry } from "../types";
+import { EnhancedCredit, EnhancedReconciliation, Entry } from "../types";
 
 export function sortEntries(entries: Entry[]) {
   const _sortedEntries = entries.sort((a, b) => {
@@ -19,40 +19,40 @@ export function sortEntries(entries: Entry[]) {
 
     // Reconciliation comes first
     if (aIsReconciliation && !bIsReconciliation) {
-      return -1; // a is reconciliation, goes first
+      return -1;
     }
     if (!aIsReconciliation && bIsReconciliation) {
-      return 1; // b is reconciliation, goes first
+      return 1;
     }
 
-    // Debits come 2nd
+    // Credits with type "CAPITAL" or "TILL_TRANSFER" come after reconciliations
+    const priorityCreditTypes = ["CAPITAL", "TILL_TRANSFER"];
+    const aIsPriorityCredit =
+      aIsCredit && priorityCreditTypes.includes((a as EnhancedCredit).type);
+    const bIsPriorityCredit =
+      bIsCredit && priorityCreditTypes.includes((b as EnhancedCredit).type);
+
+    if (aIsPriorityCredit && !bIsPriorityCredit) {
+      return -1; // a is priority credit
+    }
+    if (!aIsPriorityCredit && bIsPriorityCredit) {
+      return 1; // b is priority credit
+    }
+
+    // Debits come next
     if (aIsDebit && !bIsDebit) {
-      return -1; // a is debit, b is not
+      return -1; // a is debit
     }
     if (!aIsDebit && bIsDebit) {
-      return 1; // b is debit, a is not
+      return 1; // b is debit
     }
 
-    // If both are debits or both are not debits, check for credits
-    if (aIsCredit && !bIsCredit) {
-      return 1; // a is credit, b is not
-    }
-    if (!aIsCredit && bIsCredit) {
-      return -1; // b is credit, a is not
+    // Other credits follow
+    if (aIsCredit && !aIsPriorityCredit && bIsCredit && !bIsPriorityCredit) {
+      return 0; // Both are other credits
     }
 
-    // Handle credits: EXPECTED_EOD and ACTUAL_EOD should be last among credits
-    if (aIsCredit && bIsCredit) {
-      if (a.type === "EXPECTED_EOD" || a.type === "ACTUAL_EOD") {
-        return 1; // a is EXPECTED_EOD or ACTUAL_EOD, goes last
-      }
-      if (b.type === "EXPECTED_EOD" || b.type === "ACTUAL_EOD") {
-        return -1; // b is EXPECTED_EOD or ACTUAL_EOD, goes last
-      }
-      return 0; // Both are credits of different types
-    }
-
-    return 0; // If all are the same type
+    return 0;
   });
 
   return _sortedEntries;

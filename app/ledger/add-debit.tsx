@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { database } from "../firebase/firebaseConfig";
 import { generateRandomId } from "./utils";
+import { Textarea } from "@/components/ui/textarea";
 
 const DebitSchema = z.object({
   date: z.date().refine((date) => !isNaN(date.getTime()), {
@@ -36,6 +37,7 @@ const DebitSchema = z.object({
   }),
   narration: z.string().nonempty("Please enter a narration"),
   amount: z.coerce.number().positive("Amount must be greater than 0"),
+  remarks: z.string().optional().nullable(),
 });
 
 export default function AddDebit({
@@ -60,6 +62,7 @@ export default function AddDebit({
       form.setValue("date", new Date(debit.date));
       form.setValue("narration", debit?.narration);
       form.setValue("amount", debit.amount);
+      form.setValue("remarks", debit?.remarks ?? null);
     } else {
       form.reset();
     }
@@ -74,6 +77,7 @@ export default function AddDebit({
           date: format(formValues.date, "yyyy-MM-dd"),
           amount: formValues.amount,
           narration: formValues.narration,
+          remarks: formValues.remarks ?? null,
         });
         toast.success("Saved debit");
         const newId = newDataRef.key || generateRandomId();
@@ -83,6 +87,7 @@ export default function AddDebit({
           entry_type: "debit",
           narration: formValues.narration,
           amount: formValues.amount,
+          remarks: formValues.remarks ?? null,
         };
         const updatedDebits = [...debits, newEntry];
         setDebits(updatedDebits);
@@ -100,6 +105,7 @@ export default function AddDebit({
           date: format(formValues.date, "yyyy-MM-dd"),
           narration: formValues.narration,
           amount: formValues.amount,
+          remarks: formValues.remarks ?? null,
         });
         const updatedEntry: Entry = {
           id,
@@ -107,6 +113,7 @@ export default function AddDebit({
           entry_type: "debit",
           narration: formValues.narration,
           amount: formValues.amount,
+          remarks: formValues.remarks ?? null,
         };
 
         setDebits(
@@ -209,10 +216,30 @@ export default function AddDebit({
                   </FormItem>
                 )}
               />
+              <FormField
+                name="remarks"
+                render={({ field }) => (
+                  <FormItem className="mb-2">
+                    <FormLabel>Remarks (optional)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="Debit remarks..."
+                        value={field.value || ""}
+                        rows={3}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             </div>
             <div className="float-right ml-auto mr-0 mt-4 flex gap-5">
               <Button type="submit">{debit ? "Update" : "Save"}</Button>
-              <Button onClick={() => setOpen(false)} variant="outline">
+              <Button
+                type="button"
+                onClick={() => setOpen(false)}
+                variant="outline"
+              >
                 Cancel
               </Button>
             </div>
