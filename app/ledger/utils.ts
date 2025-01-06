@@ -35,8 +35,8 @@ export function sortEntries(entries: Entry[]) {
       return 1;
     }
 
-    // Credits with type "CAPITAL" or "TILL_TRANSFER" come after reconciliations
-    const priorityCreditTypes = ["CAPITAL", "TILL_TRANSFER"];
+    // Credits with type "CAPITAL", "TILL_TRANSFER", or "PICK_UP" come after reconciliations
+    const priorityCreditTypes = ["CAPITAL", "TILL_TRANSFER", "PICPK_UP"];
     const aIsPriorityCredit =
       aIsCredit && priorityCreditTypes.includes((a as EnhancedCredit).type);
     const bIsPriorityCredit =
