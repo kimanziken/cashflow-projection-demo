@@ -224,7 +224,7 @@ export default function AddCredit({
                           <SelectItem value="TILL_TRANSFER">
                             TILL TRANSFER
                           </SelectItem>
-                          <SelectItem value="CAPITAL">OVERDRAFT</SelectItem>
+                          <SelectItem value="OVERDRAFT">OVERDRAFT</SelectItem>
                           <SelectItem value="CAPITAL">CAPITAL</SelectItem>
                           <SelectItem value="PDQ_SALES">PDQ_SALES</SelectItem>
                         </SelectContent>
@@ -256,7 +256,7 @@ export default function AddCredit({
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Debit remarks..."
+                        placeholder="Credit remarks..."
                         value={field.value || ""}
                         rows={3}
                       />
