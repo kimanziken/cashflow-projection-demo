@@ -2,6 +2,7 @@ export type Credit = {
   amount: number;
   date: string;
   type: string;
+  remarks?: string | null;
 };
 export type EnhancedCredit = Credit & {
   id: string;

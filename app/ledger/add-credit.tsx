@@ -37,6 +37,7 @@ import { generateRandomId } from "./utils";
 import { push, ref, set } from "firebase/database";
 import { toast } from "sonner";
 import { database } from "../firebase/firebaseConfig";
+import { Textarea } from "@/components/ui/textarea";
 
 const CreditSchema = z.object({
   date: z.date().refine((date) => !isNaN(date.getTime()), {
@@ -44,6 +45,7 @@ const CreditSchema = z.object({
   }),
   type: z.string().nonempty("Please select a type"),
   amount: z.coerce.number().positive("Amount must be greater than 0"),
+  remarks: z.string().optional().nullable(),
 });
 
 export default function AddCredit({
@@ -65,6 +67,7 @@ export default function AddCredit({
       date: credit?.date ? new Date(credit.date) : undefined,
       type: credit?.type || "",
       amount: credit?.amount || undefined,
+      remarks: credit?.remarks || null,
     },
   });
 
@@ -73,6 +76,7 @@ export default function AddCredit({
       form.setValue("date", new Date(credit.date));
       form.setValue("type", credit.type);
       form.setValue("amount", credit.amount);
+      form.setValue("remarks", credit?.remarks ?? null);
     } else {
       form.reset();
     }
@@ -87,6 +91,7 @@ export default function AddCredit({
           date: format(formValues.date, "yyyy-MM-dd"),
           amount: formValues.amount,
           type: formValues.type,
+          remarks: formValues.remarks ?? null,
         });
         toast.success("Saved credit");
         const newId = newDataRef.key || generateRandomId();
@@ -96,6 +101,7 @@ export default function AddCredit({
           entry_type: "credit",
           type: formValues.type,
           amount: formValues.amount,
+          remarks: formValues.remarks ?? null,
         };
         const updatedCredits = [...credits, newEntry];
         setCredits(updatedCredits);
@@ -113,6 +119,7 @@ export default function AddCredit({
           date: format(formValues.date, "yyyy-MM-dd"),
           type: formValues.type,
           amount: formValues.amount,
+          remarks: formValues.remarks ?? null,
         });
         const updatedEntry: Entry = {
           id,
@@ -120,6 +127,7 @@ export default function AddCredit({
           entry_type: "credit",
           type: formValues.type,
           amount: formValues.amount,
+          remarks: formValues.remarks ?? null,
         };
 
         setCredits(
@@ -216,6 +224,7 @@ export default function AddCredit({
                           <SelectItem value="TILL_TRANSFER">
                             TILL TRANSFER
                           </SelectItem>
+                          <SelectItem value="CAPITAL">OVERDRAFT</SelectItem>
                           <SelectItem value="CAPITAL">CAPITAL</SelectItem>
                           <SelectItem value="PDQ_SALES">PDQ_SALES</SelectItem>
                         </SelectContent>
@@ -234,6 +243,22 @@ export default function AddCredit({
                         {...field}
                         placeholder="Enter amount"
                         value={field.value || ""}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="remarks"
+                render={({ field }) => (
+                  <FormItem className="mb-2">
+                    <FormLabel>Remarks (optional)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="Debit remarks..."
+                        value={field.value || ""}
+                        rows={3}
                       />
                     </FormControl>
                   </FormItem>
